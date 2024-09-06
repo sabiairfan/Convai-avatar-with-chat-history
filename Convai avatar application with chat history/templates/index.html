@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Convai</title>
+</head>
+<body>
+    <h1>Chat with Convai</h1>
+
+    <div id="chat_history">
+        <ul>
+            {% for entry in conversation_history %}
+                <li><strong>{{ entry.role }}:</strong> {{ entry.message }}</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+
+
+
+    <form id="chatForm">
+        <label for="userText">Enter your message:</label>
+        <input type="text" id="userText" name="userText" required>
+        <button type="submit">Send</button>
+    </form>
+    <div id="response"></div>
+
+    <script>
+        document.getElementById("chatForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const userText = document.getElementById("userText").value;
+            //const responseDiv = document.getElementById("response");
+
+            const response = await fetch("/api_request", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ userText })
+            });
+
+            const data = await response.json();
+            if (data.response) {
+                // Update chat history in the HTML
+                const chatHistory = document.getElementById('chat_history').querySelector('ul');
+                chatHistory.innerHTML += `<li><strong>user:</strong> ${userText}</li>`;
+                chatHistory.innerHTML += `<li><strong>assistant:</strong> ${data.response}</li>`;
+                document.getElementById('userText').value = '';
+            }
+        });
+    </script>
+</body>
+</html>
